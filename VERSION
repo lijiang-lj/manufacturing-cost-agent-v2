@@ -1,0 +1,59 @@
+Manufacturing Cost Agent
+Version: 2.0.0
+Release Date: 2024-11-10
+Python: 3.13+
+
+Release Notes:
+-------------
+v2.0.0 (2024-11-10)
+- 完全重构的架构设计
+- 基于 LangGraph 的工作流引擎
+- 完全 LLM 驱动的成本推理
+- 支持 STP 图纸解析（CadQuery）
+- 多维度成本分析（设备/能源/人工/产量）
+- 地域价格差异支持
+- 智能无图纸估算
+- 完整的测试套件和文档
+
+Tech Stack:
+-----------
+- Python 3.13
+- LangChain 0.3.27
+- LangGraph 0.6.6
+- Azure OpenAI GPT-4o
+- CadQuery 2.6.1
+- Pydantic 2.11.7
+
+Supported Processes:
+-------------------
+- melting (熔炼)
+- casting (铸造)
+- machining / OP (机加工)
+- inspection (检验)
+
+Cost Components:
+---------------
+1. Equipment Depreciation (设备折旧)
+2. Energy Costs (能源成本: 电/水/气)
+3. Labor Costs (人工成本)
+4. Volume Scale Effects (产量规模效应)
+
+Supported Regions:
+-----------------
+- 浙江 (Zhejiang)
+- 江苏 (Jiangsu)
+- 广东 (Guangdong)
+- 四川 (Sichuan)
+- ... (任意中国地区)
+
+Authors:
+--------
+Manufacturing Cost Analysis Team
+
+License:
+--------
+MIT License
+
+Contact:
+--------
+For support and feedback, please refer to the documentation.

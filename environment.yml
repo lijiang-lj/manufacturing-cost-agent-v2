@@ -1,0 +1,19 @@
+name: manufacturing-cost-agent
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.13
+  - pip>=24.0
+  - pip:
+    - langchain==0.3.27
+    - langchain-openai==0.3.35
+    - langchain-community==0.3.31
+    - langchain-core==0.3.79
+    - langgraph==0.6.6
+    - azure-identity==1.19.0
+    - python-dotenv==1.1.1
+    - cadquery==2.6.1
+    - pydantic==2.11.7
+    - httpx==0.28.1
+    - requests==2.32.5
