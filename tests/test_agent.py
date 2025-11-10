@@ -2,7 +2,12 @@
 """
 测试 Manufacturing Cost Agent
 """
+from langchain_openai import AzureChatOpenAI
+from dotenv import load_dotenv
+import os
 
+# 加载 .env 文件
+load_dotenv()
 import sys
 import os
 

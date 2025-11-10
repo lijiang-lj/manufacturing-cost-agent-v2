@@ -1,17 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+以 LangChain 的 AzureChatOpenAI 调用格式测试 Azure OpenAI 连接
+"""
 import os
 from pathlib import Path
-
 from dotenv import load_dotenv
-
-try:
-    from openai import AzureOpenAI
-except ImportError:
-    print("❌ 未找到 openai 包，请先安装：")
-    print("   pip install openai python-dotenv")
-    raise
+from langchain_openai import AzureChatOpenAI
 
 # -------------------------------------------------------------------
-# 1. 加载 .env 文件（优先加载项目根目录的 .env）
+# 1) 加载 .env（优先项目根目录）
 # -------------------------------------------------------------------
 ROOT_DIR = Path(__file__).resolve().parent
 env_path = ROOT_DIR / ".env"
@@ -23,7 +20,7 @@ else:
     print("⚠️ 未在项目根目录找到 .env，将直接使用系统环境变量。")
 
 # -------------------------------------------------------------------
-# 2. 读取必须的环境变量
+# 2) 读取必须的环境变量
 # -------------------------------------------------------------------
 required_vars = [
     "AZURE_OPENAI_ENDPOINT",
@@ -39,9 +36,9 @@ if missing:
         print(f"   - {k}")
     raise SystemExit(1)
 
-endpoint = os.environ["AZURE_OPENAI_ENDPOINT"]
-api_key = os.environ["AZURE_OPENAI_API_KEY"]
-deployment = os.environ["AZURE_OPENAI_DEPLOYMENT"]
+endpoint    = os.environ["AZURE_OPENAI_ENDPOINT"]
+api_key     = os.environ["AZURE_OPENAI_API_KEY"]
+deployment  = os.environ["AZURE_OPENAI_DEPLOYMENT"]
 api_version = os.environ["AZURE_OPENAI_API_VERSION"]
 
 print("\n🔧 当前配置：")
@@ -50,37 +47,45 @@ print(f"   AZURE_OPENAI_DEPLOYMENT = {deployment}")
 print(f"   AZURE_OPENAI_API_VERSION= {api_version}")
 
 # -------------------------------------------------------------------
-# 3. 创建 AzureOpenAI 客户端并发起一次简单请求
+# 3) 可选：配置代理（仅当 .env / 环境变量提供时才生效）
+#    支持 PROXY_URL / HTTPS_PROXY / HTTP_PROXY 三选一；无需就不设置
+# -------------------------------------------------------------------
+proxy = os.getenv("PROXY_URL") or os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY")
+no_proxy = os.getenv("NO_PROXY")
+if proxy:
+    os.environ["HTTP_PROXY"]  = proxy
+    os.environ["HTTPS_PROXY"] = proxy
+if no_proxy:
+    os.environ["NO_PROXY"] = no_proxy
+print(f"\n🌐 Proxy configured: {'YES' if proxy else 'NO'}")
+
+# -------------------------------------------------------------------
+# 4) 用 AzureChatOpenAI 初始化，发起一次简单请求
 # -------------------------------------------------------------------
 print("\n🚀 正在尝试连接 Azure OpenAI...")
 
-client = AzureOpenAI(
+llm = AzureChatOpenAI(
+    deployment_name=deployment,          # ✅ 用部署名
     api_key=api_key,
-    api_version=api_version,
     azure_endpoint=endpoint,
+    api_version=api_version,
+    temperature=1.0,
 )
 
 try:
-    response = client.chat.completions.create(
-        model=deployment,  # 这里用的是部署名
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": "Say hello in one short sentence."},
-        ],
-        max_tokens=20,
-    )
-
-    choice = response.choices[0]
+    # 与你之前“能跑”的格式一致：直接 invoke
+    response = llm.invoke("Say hello from Azure GPT-5.")
     print("\n✅ 调用成功！返回内容示例：")
     print("-" * 60)
-    print(choice.message.content)
+    print(response.content)
     print("-" * 60)
 
-    print("\n📊 一些调试信息：")
-    print(f"   id:        {response.id}")
-    print(f"   model:     {response.model}")
-    print(f"   created:   {response.created}")
-    print("   usage:     ", response.usage)
+    # 兼容地输出一些可选调试信息
+    model_info = getattr(llm, "model_name", deployment)
+    print("\n📊 调试信息：")
+    print(f"   model/deployment: {model_info}")
+    print(f"   endpoint:         {endpoint}")
+    print(f"   api_version:      {api_version}")
 
 except Exception as e:
     print("\n❌ 调用 Azure OpenAI 失败：")
